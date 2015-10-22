@@ -34,15 +34,28 @@ function Project(name, place, config, docs) {
     "Ctrl-Space": function(cm) { server.complete(cm); },
     "Alt-.": function(cm) { server.jumpToDef(cm); },
     "Alt-,": function(cm) { server.jumpBack(cm); },
-    "Ctrl-Q": function(cm) { server.rename(cm); }
+    "Ctrl-Q": function(cm) { server.rename(cm); },
   }
   this.editor = new CodeMirror(place, {
     lineNumbers: true,
     extraKeys: keyMap,
     matchBrackets: true,
+    selectionPointer: "pointer",
+    styleActiveLine: true,
+    styleSelectedText: true,
+    gutters: ["CodeMirror-linenumbers"],
     value: firstDoc.doc
   })
-  this.editor.on("cursorActivity", function(cm) { server.updateArgHints(cm); })
+  this.editor.on("cursorActivity", function(cm) {
+    server.updateArgHints(cm);
+  })
+  this.editor.on("mousedown", function(cm, e) {
+    if (e.ctrlKey) {
+      cm.setCursor(cm.coordsChar({left: e.clientX, top: e.clientY}));
+      server.jumpToDef(cm);
+      e.preventDefault();
+    }
+  })
 }
 
 Project.prototype = {
@@ -191,7 +204,9 @@ function initProject(name, c) {
 
 var commands = {
   complete: function() { project.server.complete(project.editor) },
-  jumptodef: function() { project.server.jumpToDef(project.editor) },
+  jumptodef: function() {
+    project.server.jumpToDef(project.editor)
+  },
   finddocs: function() { project.server.showDocs(project.editor) },
   findtype: function() { project.server.showType(project.editor) },
   rename: function() { project.server.rename(project.editor) },
