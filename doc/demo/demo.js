@@ -43,7 +43,6 @@ function Project(name, place, config, docs) {
     selectionPointer: "pointer",
     styleActiveLine: true,
     styleSelectedText: true,
-    gutters: ["CodeMirror-linenumbers"],
     value: firstDoc.doc
   })
   this.editor.on("cursorActivity", function(cm) {
